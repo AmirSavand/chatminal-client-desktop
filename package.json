@@ -1,0 +1,25 @@
+{
+  "name": "chatminal",
+  "version": "1.0.0",
+  "author": {
+    "name": "SavandBros",
+    "email": "hello@savandbros.com",
+    "url": "https://www.savandbros.com"
+  },
+  "description": "Minimalistic chat app for web, terminal, desktop, etc.",
+  "homepage": "https://chatminal.savandbros.com",
+  "license": "GPL-3.0",
+  "copyright": "Copyright © 2021 SavandBros",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --config=build.json",
+    "build-windows": "electron-builder --config=build.json --win",
+    "build-linux": "electron-builder --config=build.json --linux",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "electron": "^16.0.1",
+    "electron-builder": "^22.13.1"
+  }
+}
