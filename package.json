@@ -1,6 +1,6 @@
 {
   "name": "chatminal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "SavandBros",
     "email": "hello@savandbros.com",
@@ -20,6 +20,6 @@
   },
   "devDependencies": {
     "electron": "^16.0.1",
-    "electron-builder": "^22.13.1"
+    "electron-builder": "^22.14.5"
   }
 }
