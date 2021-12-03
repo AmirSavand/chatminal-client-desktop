@@ -1,12 +1,14 @@
-const { app, shell, dialog, BrowserWindow, Menu, Tray } = require("electron");
+const { app, shell, BrowserWindow, Menu, Tray } = require("electron");
 const { website } = require("./envrionment");
-const { join } = require("path");
+const { checkForUpdate } = require("./update");
+const { getIcon } = require("./icon");
+const { showDialog } = require("./dialog");
 
-/** Path to the app icon. */
-const icon = {
-  ico: join(__dirname, "assets", "icon.ico"),
-  png: join(__dirname, "assets", "icon.png"),
-};
+/** Start setting up the app. */
+setupApp();
+
+/** Support system tray? */
+const allowTray = process.platform !== "linux";
 
 /** System tray instance. */
 let tray = null;
@@ -16,8 +18,12 @@ let window = null;
 
 /** Create the system tray of the app. */
 function createTray() {
+  /** Create tray if it should support. */
+  if (!allowTray) {
+    return false;
+  }
   /** Create the system tray instance. */
-  tray = new Tray(icon.ico);
+  tray = new Tray(getIcon().ico);
   /** Set tooltip to app title. */
   tray.setToolTip("Chatminal");
   /** Set menu items for the system tray. */
@@ -43,15 +49,16 @@ function createTray() {
     /** Show about dialog on click. */
     {
       label: "About", type: "normal", click: () => {
-        dialog.showMessageBox({
-          title: `Chatminal`,
-          detail: [
-            `Chatminal (Desktop) v${app.getVersion()}`,
-            `Minimalistic chat app for web, terminal, desktop, etc.`,
-          ].join("\n"),
-          buttons: [],
-          icon: icon.png,
-        });
+        showDialog([
+          `Chatminal (Desktop) v${app.getVersion()}`,
+          `Minimalistic chat app for web, terminal, desktop, etc.`,
+        ]);
+      },
+    },
+    /** Check for update. */
+    {
+      label: "Check for update", type: "normal", click: () => {
+        checkForUpdate(false);
       },
     },
     { type: "separator" },
@@ -84,13 +91,13 @@ function createWindow() {
     autoHideMenuBar: true,
     resizable: false,
     minimizable: true,
-    icon: icon.png,
+    icon: getIcon().png,
   });
   /** Load the chatminal web app into the window. */
   window.loadURL(website);
   /** Handle application closing.*/
   window.on("close", (event) => {
-    if (!app.isQuitting) {
+    if (allowTray && !app.isQuitting) {
       event.preventDefault();
       window.hide();
     }
@@ -102,24 +109,39 @@ function createWindow() {
   });
 }
 
-/** Create app system tray and app window when app is ready. */
-app.whenReady().then(() => {
-  createTray();
-  createWindow();
-  /** open-a-window-if-none-are-open-macos */
+/** Set up the app. */
+function setupApp() {
+
+  /** Create app system tray and app window when app is ready. */
+  app.whenReady().then(() => {
+    createTray();
+    createWindow();
+    checkForUpdate();
+    /** open-a-window-if-none-are-open-macos */
+    app.on("activate", () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow();
+      }
+    });
+  });
+
+  /** Show the window when app is activated. */
   app.on("activate", () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
+    window.show();
+  });
+
+  /** Don't quit the app when all windows are closed. */
+  app.on("window-all-closed", (event) => {
+    if (allowTray) {
+      event.preventDefault();
+    } else {
+      app.quit();
     }
   });
-});
+}
 
-/** Show the window when app is activated. */
-app.on("activate", () => {
-  window.show();
-});
-
-/** Don't quit the app when all windows are closed. */
-app.on("window-all-closed", (event) => {
-  event.preventDefault();
-});
+module.exports = {
+  window,
+  tray,
+  allowTray
+};

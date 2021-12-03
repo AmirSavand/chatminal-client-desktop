@@ -1,7 +1,7 @@
 {
   "appId": "com.savandbros.chatminal",
   "productName": "Chatminal",
-  "icon": "src/assets/icon.ico",
+  "icon": "src/assets/icon.png",
   "publish": null,
   "mac": {
     "category": "public.app-category.social-networking"
@@ -11,12 +11,11 @@
     "target": [
       "deb",
       "rpm",
-      "snap",
-      "AppImage",
-      "tar.gz"
+      "snap"
     ]
   },
   "win": {
+    "icon": "src/assets/icon.ico",
     "target": "NSIS"
   },
   "nsis": {
